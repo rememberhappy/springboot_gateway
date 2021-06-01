@@ -1,0 +1,66 @@
+server:
+  port: 8099
+spring:
+  application:
+    # eureka的名称
+    name: gateway
+  redis:
+    database: 127
+    host: 192.168.9.225
+    port: 6379
+    password: Wdcloud998
+    timeout: 3000
+    lettuce:
+      pool:
+        max-wait: 100ms
+        max-idle: 8
+        min-idle: 1
+  cloud:
+    # 网关
+    gateway:
+      routes:
+        #       1. 用户相关配置路由
+        # 我们自定义的路由 ID，保持唯一
+        - id: usercenter
+          # 目标服务地址，lb:从微服务注册中心（如Eureka）订阅服务，并且进行服务的路由。
+          uri: https://www.baidu.com/
+          # 路由条件，Predicate 接受一个输入参数，返回一个布尔值结果。该接口包含多种默认方法来将 Predicate 组合成其他复杂的逻辑（比如：与，或，非）。
+          predicates:
+            - Path=/test/**
+          filters:
+            # 请求路径前加上/app
+#            - PrefixPath=/app
+            # 过滤器StripPrefix，作用是去掉请求路径的最前面n个部分截取掉。/test/good/1/view->/good/1/view
+            - StripPrefix=2
+            # 配置局部过滤器【此处配置的是过滤器工厂的名字，如果名字是以GatewayFilterFactory结尾，则可省略后缀】
+            - A
+            # 通过Hystrix进行熔断降级
+#            - name: Hystrix
+#              args:
+#                name: fallbackCmdA
+#                # FallbackController类中的对外访路径
+#                fallbackUri: forward:/fallbackA
+        # 上面这段配置的意思是，配置了一个 id 为 usercenter 的URI代理规则，路由的规则为：
+        #当访问地址http://localhost:8080/usercenter/v1/**时，
+        #会路由到上游地址 eureka中找name=HRSS-USER-CENTER的路径
+        #        2. 租户操作相关，不分库的数据，配置路由
+        - id: poi-server
+          uri: lb://HRSS-OPERATE-SERVER
+          predicates:
+            - Path=/operate/v1/**
+          # 单个路由超时配置
+          metadata:
+            response-timeout: 200
+            connect-timeout: 200
+        # 请求参数中有smile字段的时候，或直接将请求转发到百度
+        - id: gateway-service
+          uri: https://www.baidu.com
+          order: 0
+          predicates:
+            - Query=smile
+      # 默认是true。为false的时候，如果pom配置了网关的启动器，但是不希望启动网关
+      enabled: true
+    # 全局路由超时配置。connect-timeout：必须以毫秒为单位指定连接超时。response-timeout：响应超时必须指定为java.time.Duration文件
+    httpclient:
+      connect-timeout: 1000
+      response-timeout: 5s
