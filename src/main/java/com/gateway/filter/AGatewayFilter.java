@@ -12,6 +12,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * 定义局部过滤器，需要经局部过滤器注入到过滤器工厂中【AGatewayFilterFactory】
+ *
  * @Author zhangdj
  * @Date 2021/6/1:11:49
  * @Description

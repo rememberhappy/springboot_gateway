@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
-//import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 获取IP地址
@@ -23,29 +23,29 @@ public class RemoteIPHost {
      * @Author zhangdj
      * @date 2021/5/17 17:38
      */
-//    public static String getRemoteHost(HttpServletRequest request) {
-//        String sourceIp = null;
-//        String ipAddresses = request.getHeader("x-forwarded-for");
-//        if (ipAddresses == null || ipAddresses.length() == 0 || "unknown".equalsIgnoreCase(ipAddresses)) {
-//            ipAddresses = request.getHeader("Proxy-Client-IP");
-//        }
-//        if (ipAddresses == null || ipAddresses.length() == 0 || "unknown".equalsIgnoreCase(ipAddresses)) {
-//            ipAddresses = request.getHeader("WL-Proxy-Client-IP");
-//        }
-//        if (ipAddresses == null || ipAddresses.length() == 0 || "unknown".equalsIgnoreCase(ipAddresses)) {
-//            ipAddresses = request.getHeader("HTTP_CLIENT_IP");
-//        }
-//        if (ipAddresses == null || ipAddresses.length() == 0 || "unknown".equalsIgnoreCase(ipAddresses)) {
-//            ipAddresses = request.getHeader("HTTP_X_FORWARDED_FOR");
-//        }
-//        if (ipAddresses == null || ipAddresses.length() == 0 || "unknown".equalsIgnoreCase(ipAddresses)) {
-//            ipAddresses = request.getRemoteAddr();
-//        }
-//        if (!StringUtils.isEmpty(ipAddresses)) {
-//            sourceIp = ipAddresses.split(",")[0];
-//        }
-//        return "0:0:0:0:0:0:0:1".equals(sourceIp) ? "127.0.0.1" : sourceIp;
-//    }
+    public static String getRemoteHost(HttpServletRequest request) {
+        String sourceIp = null;
+        String ipAddresses = request.getHeader("x-forwarded-for");
+        if (ipAddresses == null || ipAddresses.length() == 0 || "unknown".equalsIgnoreCase(ipAddresses)) {
+            ipAddresses = request.getHeader("Proxy-Client-IP");
+        }
+        if (ipAddresses == null || ipAddresses.length() == 0 || "unknown".equalsIgnoreCase(ipAddresses)) {
+            ipAddresses = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ipAddresses == null || ipAddresses.length() == 0 || "unknown".equalsIgnoreCase(ipAddresses)) {
+            ipAddresses = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ipAddresses == null || ipAddresses.length() == 0 || "unknown".equalsIgnoreCase(ipAddresses)) {
+            ipAddresses = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ipAddresses == null || ipAddresses.length() == 0 || "unknown".equalsIgnoreCase(ipAddresses)) {
+            ipAddresses = request.getRemoteAddr();
+        }
+        if (!StringUtils.isEmpty(ipAddresses)) {
+            sourceIp = ipAddresses.split(",")[0];
+        }
+        return "0:0:0:0:0:0:0:1".equals(sourceIp) ? "127.0.0.1" : sourceIp;
+    }
 
     /**
      * 获取IP地址

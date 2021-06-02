@@ -46,10 +46,32 @@ spring-cloud-gateway, 是spring 出品的 基于spring 的网关项目，集成�
 
 
 网关简介
+API网关是一个服务器，是系统的唯一入口。从面向对象设计的角度看，它与外观模式类似。API网关封装了系统内部架构，为每个客户端提供一个定制的API。它可能还具有其它职责，如身份验证、监控、负载均衡、缓存、请求分片与管理、静态响应处理。API网关方式的核心要点是，所有的客户端和消费端都通过统一的网关接入微服务，在网关层处理所有的非业务功能。通常，网关也是提供REST/HTTP的访问API。
 SpringCloud Gateway 是 Spring Cloud 的一个全新项目，该项目是基于 Spring 5.0，Spring Boot 2.0 和 Project Reactor 等技术开发的网关，它旨在为微服务架构提供一种简单有效的统一的 API 路由管理方式。
 SpringCloud Gateway 作为 Spring Cloud 生态系统中的网关，目标是替代 Zuul，在Spring Cloud 2.0以上版本中，没有对新版本的Zuul 2.0以上最新高性能版本进行集成，仍然还是使用的Zuul 2.0之前的非Reactor模式的老版本。而为了提升网关的性能，SpringCloud Gateway是基于WebFlux框架实现的，而WebFlux框架底层则使用了高性能的Reactor模式通信框架Netty。
 Spring Cloud Gateway 的目标，不仅提供统一的路由方式，并且基于 Filter 链的方式提供了网关基本的功能，例如：安全，监控/指标，和限流。
 提前声明：Spring Cloud Gateway 底层使用了高性能的通信框架Netty。
+
+网关应当具备以下功能：
+1. 性能：API高可用，负载均衡，容错机制。
+2. 安全：权限身份认证、脱敏，流量清洗，后端签名（保证全链路可信调用）,黑名单（非法调用的限制）。
+3. 日志：日志记录（spainid,traceid）一旦涉及分布式，全链路跟踪必不可少。
+4. 缓存：数据缓存。
+5. 监控：记录请求响应数据，api耗时分析，性能监控。
+6. 限流：流量控制，错峰流控，可以定义多种限流规则。全局性流量控制，服务级别流量控制
+7. 灰度：线上灰度部署，可以减小风险。
+8. 路由：动态路由规则。
+9. 防止sql注入，防止web攻击，屏蔽工具扫描，证书、加解密处理，黑白IP名单，降级熔断业务规则参数校验
+![image](src/main/resources/image/网关的服务与功能.png)  
+以上功能对系统的稳定性和健壮性至关重要。
+
+nginx和Spring Cloud Gateway在功能上是有一些重叠的地方，都可以做服务转发。  
+但是网关在大型微服务系统中是一个很重的角色，Spring Cloud Gateway是专为为网关的角色而设计的，功能强大，而且是官方出品，所以在大型系统开发中基本上都会选用此组件。  
+而nginx只能实现一些上面所说的一部分功能，一般都是选择nginx做静态资源缓存和前端调用接口的负载均衡。  
+现在前后端分离的系统一般都是如下设计：  
+    nginx做静态资源服务器，前端页面调用后台接口时先请求到nginx，nginx负载均衡路由到后端网关（gateway），  
+    然后网关做请求身份验证，服务路由，日志记录等等操作，再转发业务处理接口，处理完返回数据。
+
 
 网关特征
 SpringCloud官方，对SpringCloud Gateway 特征介绍如下：
@@ -64,7 +86,7 @@ SpringCloud官方，对SpringCloud Gateway 特征介绍如下：
     和Zuul的过滤器在概念上类似，可以使用它拦截和修改请求，并且对上游的响应，进行二次处理。过滤器为org.springframework.cloud.gateway.filter.GatewayFilter类的实例。
     （2）Route（路由）：
     网关配置的基本组成模块，和Zuul的路由配置模块类似。一个Route模块由一个 ID，一个目标 URI，一组断言和一组过滤器定义。如果断言为真，则路由匹配，目标URI会被访问。
-    （3）Predicate（断言）：
+    （3）Predicate（断言/谓词）：
     这是一个 Java 8 的 Predicate，可以使用它来匹配来自 HTTP 请求的任何内容，例如 headers 或参数。断言的输入类型是一个 ServerWebExchange。
 
 网关的处理流程：
@@ -118,6 +140,7 @@ Predicate 断言条件(转发规则)介绍：
     #RemoteAddr：RemoteAddr=192.168.1.1/24
     权重路由工厂有两个参数：group和Weight(int)。每组计算重量。示例：predicates：- Weight=group1, 2；在group1这个分组中，将会有20%的流量流向它
     组合使用：各种 Predicates 同时存在于同一个路由时，请求必须同时满足所有的条件才被这个路由匹配。一个请求满足多个路由的断言条件时，请求只会被首个成功匹配的路由转发
+    注：当一个请求满足多个路由的谓词条件时，请求只会被首个成功匹配的路由转发
 
 Filter 过滤器规则
 

@@ -18,6 +18,9 @@ spring:
   cloud:
     # 网关
     gateway:
+      # 默认是true。为false的时候，如果pom配置了网关的启动器，但是不希望启动网关
+      enabled: true
+      # 定义路由规则
       routes:
         #       1. 用户相关配置路由
         # 我们自定义的路由 ID，保持唯一
@@ -58,8 +61,6 @@ spring:
           order: 0
           predicates:
             - Query=smile
-      # 默认是true。为false的时候，如果pom配置了网关的启动器，但是不希望启动网关
-      enabled: true
     # 全局路由超时配置。connect-timeout：必须以毫秒为单位指定连接超时。response-timeout：响应超时必须指定为java.time.Duration文件
     httpclient:
       connect-timeout: 1000
