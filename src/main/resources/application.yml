@@ -38,14 +38,14 @@ spring:
             # 配置局部过滤器【此处配置的是过滤器工厂的名字，如果名字是以GatewayFilterFactory结尾，则可省略后缀】
             - A
             # 通过Hystrix进行熔断降级
-#            - name: Hystrix
-#              args:
-#                name: fallbackCmdA
-#                # FallbackController类中的对外访路径
-#                fallbackUri: forward:/fallbackA
+            - name: Hystrix
+              args:
+                name: fallbackcmd
+                # FallbackController类中的对外访路径
+                fallbackUri: forward:/fallbackA
         # 上面这段配置的意思是，配置了一个 id 为 usercenter 的URI代理规则，路由的规则为：
-        #当访问地址http://localhost:8080/usercenter/v1/**时，
-        #会路由到上游地址 eureka中找name=HRSS-USER-CENTER的路径
+        #当访问地址http://localhost:8080/test/**时，
+        #会路由到上游地址 百度 的路径
         #        2. 租户操作相关，不分库的数据，配置路由
         - id: poi-server
           uri: lb://HRSS-OPERATE-SERVER
@@ -65,3 +65,14 @@ spring:
     httpclient:
       connect-timeout: 1000
       response-timeout: 5s
+
+# 熔断器配置.网关熔断策略是超时1秒就熔断
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE
+          thread:
+            timeoutInMilliseconds: 3000
+  shareSecurityContext: true

@@ -42,6 +42,12 @@ public class AGlobalFilter implements GlobalFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        // 用来测试熔断机制。熔断策略中配置了过期时间为一秒，此处睡眠3秒。所有请求都会到熔断中
+//        try {
+//            Thread.sleep(3000l);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         log.info("AGlobalFilter前置逻辑");
         // 在请求刚刚到达时，往ServerWebExchange中放入了一个属性elapsedTimeBegin，属性值为当时的毫秒级时间戳
         exchange.getAttributes().put(ELAPSED_TIME_BEGIN, System.currentTimeMillis());

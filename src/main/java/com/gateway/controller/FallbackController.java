@@ -23,6 +23,6 @@ public class FallbackController {
                 "Value-ResponseEntityBuilderWithHttpHeaders");
         return ResponseEntity.status(400)
                 .headers(responseHeaders)
-                .body("响应信息");
+                .body("熔断策略拦截了");
     }
 }

@@ -43,7 +43,7 @@ public class AGatewayFilter implements GatewayFilter {
         // 获取param 请求参数
         String uname = exchange.getRequest().getQueryParams().getFirst("uname");
         if (StringUtils.isBlank(uname)) {
-            log.info("*****    头部验证不通过，请在头部输入  user-id");
+            log.info("*****    头部验证不通过，请在参数中输入  uname");
             //终止请求，直接回应。返回：406 Not Acceptable
             exchange.getResponse().setStatusCode(HttpStatus.NOT_ACCEPTABLE);
             return exchange.getResponse().setComplete();
