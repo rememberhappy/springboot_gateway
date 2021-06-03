@@ -54,7 +54,7 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.68</version>
         </dependency>
-        <!-- 工具类 -->
+        <!-- apache工具类 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -76,6 +76,12 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
+        </dependency>
+        <!-- 公共信息管理，是本地项目springboot_commoninfoholder打成的jar -->
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>springboot_commoninfoholder</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <!-- springclound版本号的管理 -->

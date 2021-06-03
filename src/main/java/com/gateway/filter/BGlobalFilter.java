@@ -53,7 +53,7 @@ public class BGlobalFilter implements GlobalFilter {
         return Bucket4j.builder().addLimit(limit).build();
     }
 
-    private static Logger log = LoggerFactory.getLogger(BGlobalFilter.class);
+    private final static Logger log = LoggerFactory.getLogger(BGlobalFilter.class);
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

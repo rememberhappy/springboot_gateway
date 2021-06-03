@@ -35,7 +35,7 @@ import java.util.HashMap;
 //@Order(Ordered.LOWEST_PRECEDENCE)// 最大值
 @Order(-1)
 public class AGlobalFilter implements GlobalFilter {
-    private static Logger log = LoggerFactory.getLogger(AGlobalFilter.class);
+    private final static Logger log = LoggerFactory.getLogger(AGlobalFilter.class);
     private static final String ELAPSED_TIME_BEGIN = "elapsedTimeBegin";
     @Resource
     RedisTemplate<String, Integer> redisTemplate;
@@ -112,6 +112,7 @@ public class AGlobalFilter implements GlobalFilter {
         // 给请求添加请求头信息
         ServerHttpRequest.Builder mutate = exchange.getRequest().mutate();
         mutate.header("token", "token");
+        mutate.header("userId", "123456");
         ServerHttpRequest serverHttpRequest = mutate.build();
         ServerWebExchange webExchange = exchange.mutate().request(serverHttpRequest).build();
         Mono<Void> res = chain.filter(webExchange);

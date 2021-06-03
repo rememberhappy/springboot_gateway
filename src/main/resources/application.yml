@@ -57,10 +57,10 @@ spring:
             connect-timeout: 200
         # 请求参数中有smile字段的时候，或直接将请求转发到百度
         - id: gateway-service
-          uri: https://www.baidu.com
+          uri: http://localhost:8080
           order: 0
           predicates:
-            - Query=smile
+            - Path=/index
     # 全局路由超时配置。connect-timeout：必须以毫秒为单位指定连接超时。response-timeout：响应超时必须指定为java.time.Duration文件
     httpclient:
       connect-timeout: 1000

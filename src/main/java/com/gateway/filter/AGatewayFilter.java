@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 @Component
 @Order(2)
 public class AGatewayFilter implements GatewayFilter {
-    private static Logger log = LoggerFactory.getLogger(AGlobalFilter.class);
+    private final static Logger log = LoggerFactory.getLogger(AGlobalFilter.class);
 
     /**
      * 局部过滤器举例, 对请求头部的 user-id 进行校验
