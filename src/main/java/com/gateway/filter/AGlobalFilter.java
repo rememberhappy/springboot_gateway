@@ -1,7 +1,9 @@
 package com.gateway.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.gateway.utils.RemoteIPHost;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -9,12 +11,12 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -22,6 +24,7 @@ import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 定义A全局过滤器
@@ -39,6 +42,8 @@ public class AGlobalFilter implements GlobalFilter {
     private static final String ELAPSED_TIME_BEGIN = "elapsedTimeBegin";
     @Resource
     RedisTemplate<String, Integer> redisTemplate;
+    @Resource
+    RestTemplate restTemplate;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -58,6 +63,8 @@ public class AGlobalFilter implements GlobalFilter {
         // 获取IP地址
         String ip = RemoteIPHost.getRemoteHost(exchange.getRequest());
         System.out.println("ip：" + ip);
+        String test = test("117.136.42.86");
+        System.out.println("该ip所在的城市：" + test);
         // 获取请求参数
         MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
         String momn = queryParams.getFirst("momn");
@@ -151,5 +158,39 @@ public class AGlobalFilter implements GlobalFilter {
         //终止请求，直接回应
         exchange.getResponse().setStatusCode(HttpStatus.NOT_ACCEPTABLE);
         return exchange.getResponse().setComplete();
+    }
+
+    private String test(String ip) {
+        String url = "https://restapi.amap.com/v3/ip?key=65c7419e87599e8467876a3a5a93b86d&ip=" + ip;
+//        HttpHeaders headers = new HttpHeaders();
+//        //定义请求参数类型，这里用json所以是MediaType.APPLICATION_JSON
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//        //RestTemplate带参传的时候要用HttpEntity<?>对象传递
+//        Map<String, Object> map = new HashMap<String, Object>();
+//        HttpEntity<Map<String, Object>> request = new HttpEntity<Map<String, Object>>(map, headers);
+
+        ResponseEntity<String> entity = restTemplate.getForEntity(url, String.class);
+        //获取3方接口返回的数据通过entity.getBody();它返回的是一个字符串；
+        String body = entity.getBody();
+        //然后把str转换成JSON再通过getJSONObject()方法获取到里面的result对象，因为我想要的数据都在result里面
+        //下面的strToJson只是一个str转JSON的一个共用方法；
+        JSONObject json = JSONObject.parseObject(body);
+        if (json != null) {
+            Integer status = json.getInteger("status");// 值为0或1,0表示失败；1表示成功
+            if (status == null || status.intValue() == 0) {
+                System.out.println("第三方接口调用失败");
+            }
+            String province = json.getString("province");// 省份名称 若为直辖市则显示直辖市名称,如果在局域网 IP网段内，则返回“局域网”,非法IP以及国外IP则返回空
+            String city = json.getString("city");// 城市名称 若为直辖市则显示直辖市名称，如果为局域网网段内IP或者非法IP或国外IP，则返回空
+            if (StringUtils.isNotEmpty(province) && StringUtils.isNotEmpty(city)) {
+                //调用JSONObject.toJavaObject()把JSON转成java对象最后抛出数据即可
+                System.out.println("所在省：" + province + ",所在市：" + city);
+                return "";
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 }
