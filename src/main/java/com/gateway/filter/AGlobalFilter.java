@@ -11,20 +11,26 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 定义A全局过滤器
@@ -63,7 +69,7 @@ public class AGlobalFilter implements GlobalFilter {
         // 获取IP地址
         String ip = RemoteIPHost.getRemoteHost(exchange.getRequest());
         System.out.println("ip：" + ip);
-        String test = test("117.136.42.86");
+        String test = restTemplateRequest("117.136.42.86");
         System.out.println("该ip所在的城市：" + test);
         // 获取请求参数
         MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
@@ -160,7 +166,17 @@ public class AGlobalFilter implements GlobalFilter {
         return exchange.getResponse().setComplete();
     }
 
-    private String test(String ip) {
+    /**
+     * 调用第三方接口  高德地图，根据IP识别IP所在的城市
+     * 使用ResrTemplate调用第三方接口
+     *
+     * @param ip
+     * @return java.lang.String
+     * @Throws
+     * @Author zhangdj
+     * @date 2021/6/8 14:39
+     */
+    private String restTemplateRequest(String ip) {
         String url = "https://restapi.amap.com/v3/ip?key=65c7419e87599e8467876a3a5a93b86d&ip=" + ip;
 //        HttpHeaders headers = new HttpHeaders();
 //        //定义请求参数类型，这里用json所以是MediaType.APPLICATION_JSON
@@ -192,5 +208,28 @@ public class AGlobalFilter implements GlobalFilter {
         } else {
             return null;
         }
+    }
+
+    /**
+     * 调用第三方接口  高德地图，根据IP识别IP所在的城市
+     * 使用WebClient调用第三方接口
+     *
+     * @param
+     * @return java.lang.String
+     * @Throws
+     * @Author zhangdj
+     * @date 2021/6/8 14:54
+     */
+    private String wenClientRequest(String ip) {
+        String url = "https://restapi.amap.com/v3/ip?key=65c7419e87599e8467876a3a5a93b86d&ip=" + ip;
+        Flux<String> stringFlux = WebClient.create()
+                .get()
+                .uri(url)
+                // 获取响应体
+                .retrieve()
+                .bodyToFlux(String.class);
+        //响应数据类型转换
+        List<String> posts = stringFlux.collectList().block();
+        return posts.get(0);
     }
 }
