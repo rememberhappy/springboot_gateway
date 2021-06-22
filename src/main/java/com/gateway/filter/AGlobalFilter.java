@@ -68,13 +68,15 @@ public class AGlobalFilter implements GlobalFilter {
         System.out.println("url：" + url);
         // 获取IP地址
         String ip = RemoteIPHost.getRemoteHost(exchange.getRequest());
-        System.out.println("ip：" + ip);
+        System.out.println("ip：" + ip);// ip：127.0.0.1
         String test = restTemplateRequest("117.136.42.86");
-        System.out.println("该ip所在的城市：" + test);
+        System.out.println("该ip所在的城市：" + test);// 所在省：北京市,所在市：北京市
         // 获取请求参数
         MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
         String momn = queryParams.getFirst("momn");
-        System.out.println("请求参数-momn：" + momn);
+        System.out.println("请求参数-momn：" + momn);// 请求参数-momn：null
+        String uname = queryParams.getFirst("uname");
+        System.out.println("请求参数-uname：" + uname);// 请求参数-uname：null
         InetSocketAddress remoteAddress = exchange.getRequest().getRemoteAddress();
         InetSocketAddress localAddress = exchange.getRequest().getLocalAddress();
         InetAddress address = remoteAddress.getAddress();
@@ -92,7 +94,7 @@ public class AGlobalFilter implements GlobalFilter {
         String sourceHost = remoteAddress.getHostName();
         System.out.println("请求信息-sourceHost【反向代理后的】：" + sourceHost);
         String sourceHost1 = localAddress.getHostName();
-        System.out.println("请求信息-sourceHost1【真实的】：" + sourceHost1);
+        System.out.println("请求信息-sourceHost1【真实的】：" + sourceHost1);// 请求信息-sourceHost1【真实的】：0:0:0:0:0:0:0:1
 
         // 根据请求头中的数据，获取请求信息
         HttpHeaders headers = exchange.getRequest().getHeaders();
